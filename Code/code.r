@@ -8,7 +8,7 @@ library(plotly)
 library(DBI)
 
 # Default image URL
-default_image_url <- "https://static.thenounproject.com/png/35224-200.png"
+default_image_url <- "https://cdn0.iconfinder.com/data/icons/baseball-outline-2/64/baseball_player-user-boy-sports-avatar-profile-man-people-baseball_team-512.png"
 
 # Connect to PostgreSQL database
 con <- dbConnect(RPostgres::Postgres(), 
@@ -21,27 +21,28 @@ con <- dbConnect(RPostgres::Postgres(),
 # Load and process data from the database
 combined_data <- dbGetQuery(con, 'SELECT * FROM "combined_data_2";')
 
-# Convert the date from Excel serial format to Date format
+# Convert the date from serial format to Date format
 combined_data$Internal_Date <- as.Date(combined_data$Internal_Date, origin = "1899-12-30")
 
-# Mapping of names to image URLs
+# Updated mapping of names to image URLs
 name_to_image <- list(
-  "Matthew Tkachuk" = "https://a.espncdn.com/combiner/i?img=/i/headshots/nhl/players/full/4024854.png",
-  "Aleksander Barkov" = "https://a.espncdn.com/combiner/i?img=/i/headshots/nhl/players/full/3041970.png&w=350&h=254",
-  "Sam Reinhart" = "https://a.espncdn.com/i/headshots/nhl/players/full/3114722.png",
-  "Carter Verhaeghe" = "https://a.espncdn.com/combiner/i?img=/i/headshots/nhl/players/full/3042088.png&w=350&h=254",
-  "Gustav Forsling" = "https://a.espncdn.com/i/headshots/nhl/players/full/3151784.png",
-  "Niko Mikkola" = "https://a.espncdn.com/i/headshots/nhl/players/full/3942354.png",
-  "Uvis Balinskis" = "https://a.espncdn.com/i/headshots/nhl/players/full/5142461.png",
-  "Anton Lundell" = "https://a.espncdn.com/i/headshots/nhl/players/full/4697395.png"
+  "Wayne Gretzky" = "https://media.gettyimages.com/id/51390816/photo/montreal-qc-wayne-gretzky-of-the-edmonton-oilers-poses-for-a-portrait-on-january-9-1985-at-the.jpg?s=612x612&w=gi&k=20&c=ykQG9ElBkw-A4rW4mC-2ruUVB5-kCvwZPsxV_MMgyNc=",
+  "Michael Jordan" = "https://clutchpoints-profile-pics.s3.amazonaws.com/headshots/jordanm.png",
+  "Tom Brady" = "https://apps.bostonglobe.com/sports/graphics/2017/01/tom-brady-superfreak/assets/img/brady_old.png",
+  "Pele" = "https://i.guim.co.uk/img/media/6e5f6d8d3e75e53d38d0d640a03ae88acd39fec1/0_0_2515_3180/master/2515.jpg?width=700&quality=85&auto=format&fit=max&s=181d7944e658c049e0045f91bb0ce989",
+  "Serena Williams" = "https://bongo5.com/wp-content/uploads/2017/08/serena...jpg",
+  "Jackie Robinson" = "https://hips.hearstapps.com/hmg-prod/images/jackie-robinson-brooklyn-dodger-from-1947-1956-the-first-news-photo-1686849060.jpg",
+  "Kobe Bryant" = "https://cdn.nba.com/headshots/nba/latest/1040x760/977.png",
+  "Roger Federer" = "https://a.espncdn.com/combiner/i?img=/i/headshots/tennis/players/full/425.png"
 )
+
 
 # UI
 ui <- dashboardPage(
   dashboardHeader(
     title = tags$div(
-      tags$img(src = "FL_Panthers_Logo_2.jpg", height = "50px"),  
-      "Florida Panthers combined_data Management"
+      tags$img(src = "sport_logo.webp", height = "50px"),  
+      "Legends Workload"
     ),
     titleWidth = 300
   ),
@@ -56,7 +57,7 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    shinyDashboardThemes(theme = "blue_gradient"),  # Set theme
+    shinyDashboardThemes(theme = "poor_mans_flatly"),  # Set theme
     
     tabItems(
       tabItem(tabName = "One", # Player combined_data Tab
@@ -200,7 +201,7 @@ ui <- dashboardPage(
 
 
 server <- function(input, output, session) {
-  # Connect to the database once
+  # Connect to the database
   db_connection <- dbConnect(RPostgres::Postgres(),
                              dbname = 'postgres',
                              host = 'localhost',
@@ -256,334 +257,321 @@ server <- function(input, output, session) {
     }
     tags$img(src = image_url, height = "100px", width = "100px")
   })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Fixed overall average values (all set to 8) 
-overall_avg_metrics <- rep(8, 6)  # Create a vector of 8's for 6 metrics 
-
-# Create radar chart 
-output$radarChart <- renderPlotly({ 
-  # Filter the data based on the selected player, session, and date range 
-  filtered_data <- combined_data %>% 
-    filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &  
-             (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
-             (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
-    filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
-    select(RPE, `Sleep Quality`, `Sleep Duration`, Fatigue, Soreness, Stress) 
   
-  # Get the mean for each metric for the filtered data 
-  filtered_avg_metrics <- colMeans(filtered_data, na.rm = TRUE) 
   
-  # Prepare data for radar chart 
-  radar_data <- data.frame( 
-    Metric = c("RPE", "Sleep Quality", "Sleep Duration", "Fatigue", "Soreness", "Stress"), 
-    Filtered_Avg = filtered_avg_metrics, 
-    Overall_Avg = overall_avg_metrics 
-  ) 
+
+  # Fixed overall average values (all set to 8) 
+  overall_avg_metrics <- rep(8, 6)  # Create a vector of 8's for 6 metrics 
   
-  # Radar chart with plotly using hex colors and opacity 
-  plot_ly(type = 'scatterpolar') %>% 
-    add_trace( 
-      r = radar_data$Overall_Avg, 
-      theta = radar_data$Metric, 
-      fill = 'toself', 
-      name = 'Target = 8', 
-      fillcolor = '#c8102E',   
-      line = list(color = '#c8102E'),   
-      marker = list(color = '#c8102E'),   
-      opacity = 0.5  # Set opacity for target fill 
-    ) %>% 
-    add_trace( 
-      r = radar_data$Filtered_Avg, 
-      theta = radar_data$Metric, 
-      fill = 'toself', 
-      name = paste(input$nameFilter), 
-      fillcolor = '#041E42',   
-      line = list(color = '#041E42'),   
-      marker = list(color = '#041E42'),   
-      opacity = 0.5  # Set opacity for filtered average fill 
-    ) %>% 
-    layout( 
-      polar = list( 
-        radialaxis = list(visible = TRUE, range = c(0, 10)), # Adjust range based on your data 
-        bgcolor = '#FFFFFF'  # Set the radar chart area background color to white 
-      ), 
-      plot_bgcolor = '#FFFFFF',  # Set plot background color to white 
-      paper_bgcolor = '#FFFFFF',  # Set paper background color to white 
-      showlegend = TRUE, 
-      font = list(color = 'black')  # Set text color to black 
-    ) 
-})
-
-
-
-# Create readiness chart 
-output$readinessChart <- renderPlotly({ 
-  # Filter data for Readiness Score based on selected player, session, and date range 
-  readiness_data <- combined_data %>% 
-    filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &   
-             (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
-             (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
-    filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
-    select(`Internal_Date`, `Readiness Score`)  
-  
-  # Calculate average Readiness Score by Date 
-  avg_readiness_data <- readiness_data %>% 
-    group_by(`Internal_Date`) %>% 
-    summarise(Average_Readiness_Score = mean(`Readiness Score`, na.rm = TRUE), .groups = 'drop') 
-  
-  # Line graph for Average Readiness Score over Time 
-  plot_ly(data = avg_readiness_data, x = ~`Internal_Date`, y = ~Average_Readiness_Score, type = 'scatter',   
-          mode = 'lines',  # Only show lines, no markers 
-          line = list(color = '#041E42')  # Set color for the line 
-  ) %>% 
-    layout( 
-      xaxis = list(title = "Date"), 
-      yaxis = list(title = "Avg. Readiness Score"), 
-      plot_bgcolor = '#FFFFFF', 
-      paper_bgcolor = '#FFFFFF', 
-      font = list(color = 'black'),  # Set text color to black for light theme 
-      showlegend = FALSE  # Hide the legend 
-    ) %>% 
-    # Add constant line at y = 80 
-    add_trace( 
-      y = rep(80, nrow(avg_readiness_data)),  # Create a constant y value of 80 for all x values 
-      mode = 'lines',  # Only show the constant line, no markers 
-      line = list(color = '#B9975B', width = 2)  # Customize the line appearance 
-    ) 
-})
-
-
-
-# Create high intensity acceleration, deceleration count chart, and top sprint speed bar chart 
-output$highIntAccelChart <- renderPlotly({ 
-  # Filter data for High Intensity Acceleration, Deceleration Counts, and Top Sprint Speed 
-  high_int_data <- combined_data %>% 
-    filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &   
-             (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
-             (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
-    filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
-    select(`Internal_Date`, `High Int. Accel Count`, `High Intensity Decel Counts`, `Top Sprint Speed`)  
-  
-  # Calculate average counts by Date 
-  avg_high_int_data <- high_int_data %>% 
-    group_by(`Internal_Date`) %>% 
-    summarise( 
-      Average_High_Accel_Count = mean(`High Int. Accel Count`, na.rm = TRUE), 
-      Average_High_Decel_Count = mean(`High Intensity Decel Counts`, na.rm = TRUE), 
-      Average_Top_Sprint_Speed = mean(`Top Sprint Speed`, na.rm = TRUE),  # Average sprint speed 
-      .groups = 'drop' 
-    ) 
-  
-  # Line graph for Average High Intensity Acceleration and Deceleration Counts over Time 
-  plot_ly(data = avg_high_int_data, x = ~`Internal_Date`) %>% 
-    add_trace(y = ~Average_High_Accel_Count, type = 'scatter', mode = 'lines+markers',  
-              line = list(color = '#041E42'),  # Color for high intensity acceleration 
-              marker = list(color = '#041E42', size = 5), name = "# of High Intensity Accels.") %>% 
-    add_trace(y = ~Average_High_Decel_Count, type = 'scatter', mode = 'lines+markers',  
-              line = list(color = '#c8102E'),  # Color for high intensity deceleration 
-              marker = list(color = '#c8102E', size = 5), name = "# of High Intensity Decels.") %>% 
+  # Create radar chart 
+  output$radarChart <- renderPlotly({ 
+    # Filter the data based on the selected player, session, and date range 
+    filtered_data <- combined_data %>% 
+      filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &  
+               (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
+               (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
+      filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
+      select(RPE, `Sleep Quality`, `Sleep Duration`, Fatigue, Soreness, Stress) 
     
-    # Bar chart for Top Sprint Speed 
-    add_trace(y = ~Average_Top_Sprint_Speed, type = 'bar',  
-              marker = list(color = '#B9975B'), name = "Top Sprint Speed (MPH)", opacity = 0.6) %>% 
+    # Get the mean for each metric for the filtered data 
+    filtered_avg_metrics <- colMeans(filtered_data, na.rm = TRUE) 
     
-    # Layout settings 
-    layout( 
-      xaxis = list(title = "Date"), 
-      yaxis = list(title = "Avg. Counts / Speed"), 
-      plot_bgcolor = '#FFFFFF', 
-      paper_bgcolor = '#FFFFFF', 
-      font = list(color = 'black'),  # Set text color to black 
-      legend = list( 
-        orientation = 'h',  # Horizontal legend 
-        x = 0.01,          # x-position of the legend 
-        y = 1.1            # y-position of the legend 
-      ) 
+    # Prepare data for radar chart 
+    radar_data <- data.frame( 
+      Metric = c("RPE", "Sleep Quality", "Sleep Duration", "Fatigue", "Soreness", "Stress"), 
+      Filtered_Avg = filtered_avg_metrics, 
+      Overall_Avg = overall_avg_metrics 
     ) 
-})
-
-
-# Create horizontal stacked bar chart for acceleration counts 
-output$accelBarChart <- renderPlotly({ 
-  # Filter the dataset based on user input (Date Range, Session, Position) 
-  filtered_data <- combined_data %>% 
-    filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
-             (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
-             (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
-    group_by(`Internal_Name`) %>%  # Group by Name 
-    summarise( 
-      Med_Intensity_Accel = mean(`Med. Intensity Accel Count`, na.rm = TRUE), 
-      High_Intensity_Accel = mean(`High Int. Accel Count`, na.rm = TRUE), 
-      Max_Intensity_Accel = mean(`Max Int. Accel Count`, na.rm = TRUE), 
-      .groups = 'drop'  # Ungroup after summarising 
+    
+    # Radar chart with plotly using hex colors and opacity 
+    plot_ly(type = 'scatterpolar') %>% 
+      add_trace( 
+        r = radar_data$Overall_Avg, 
+        theta = radar_data$Metric, 
+        fill = 'toself', 
+        name = 'Target = 8', 
+        fillcolor = '#c8102E',   
+        line = list(color = '#c8102E'),   
+        marker = list(color = '#c8102E'),   
+        opacity = 0.5  # Set opacity for target fill 
+      ) %>% 
+      add_trace( 
+        r = radar_data$Filtered_Avg, 
+        theta = radar_data$Metric, 
+        fill = 'toself', 
+        name = paste(input$nameFilter), 
+        fillcolor = '#041E42',   
+        line = list(color = '#041E42'),   
+        marker = list(color = '#041E42'),   
+        opacity = 0.5  # Set opacity for filtered average fill 
+      ) %>% 
+      layout( 
+        polar = list( 
+          radialaxis = list(visible = TRUE, range = c(0, 10)), # Adjust range based on your data 
+          bgcolor = '#FFFFFF'  # Set the radar chart area background color to white 
+        ), 
+        plot_bgcolor = '#FFFFFF',  # Set plot background color to white 
+        paper_bgcolor = '#FFFFFF',  # Set paper background color to white 
+        showlegend = TRUE, 
+        font = list(color = 'black')  # Set text color to black 
+      ) 
+  })
+  
+  
+  
+  # Create readiness chart 
+  output$readinessChart <- renderPlotly({ 
+    # Filter data for Readiness Score based on selected player, session, and date range 
+    readiness_data <- combined_data %>% 
+      filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &   
+               (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
+               (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
+      filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
+      select(`Internal_Date`, `Readiness Score`)  
+    
+    # Calculate average Readiness Score by Date 
+    avg_readiness_data <- readiness_data %>% 
+      group_by(`Internal_Date`) %>% 
+      summarise(Average_Readiness_Score = mean(`Readiness Score`, na.rm = TRUE), .groups = 'drop') 
+    
+    # Line graph for Average Readiness Score over Time 
+    plot_ly(data = avg_readiness_data, x = ~`Internal_Date`, y = ~Average_Readiness_Score, type = 'scatter',   
+            mode = 'lines',  # Only show lines, no markers 
+            line = list(color = '#041E42')  # Set color for the line 
     ) %>% 
-    pivot_longer(cols = c(Med_Intensity_Accel, High_Intensity_Accel, Max_Intensity_Accel), 
-                 names_to = "Metric", values_to = "Count")  # Use pivot_longer 
-  
-  # Round Count values to the nearest whole number 
-  filtered_data$Count <- round(filtered_data$Count) 
-  
-  # Define the order of the metrics 
-  filtered_data$Metric <- factor(filtered_data$Metric,  
-                                 levels = c("Med_Intensity_Accel",  
-                                            "High_Intensity_Accel",  
-                                            "Max_Intensity_Accel"))   
-  
-  # Create the horizontal stacked bar chart 
-  plot_ly( 
-    data = filtered_data, 
-    x = ~Count, 
-    y = ~`Internal_Name`,   
-    color = ~Metric, 
-    colors = c("#69BE28", "#FFD700", "#FF4500"),   
-    type = 'bar', 
-    orientation = 'h',  # Horizontal bar chart 
-    text = ~Count,  # Display the rounded Count values 
-    textposition = 'middle',  # Position the text in the middle of the bars 
-    textfont = list(color = 'white')  # Set text color to white 
-  ) %>% 
-    layout( 
-      barmode = 'stack', 
-      xaxis = list(title = "Acceleration Count"),   
-      yaxis = list(title = ""),  # Update y-axis title 
-      plot_bgcolor = '#FFFFFF', 
-      paper_bgcolor = '#FFFFFF', 
-      legend = list( 
-        orientation = 'h',  # Horizontal legend 
-        x = 0.01,          # x-position of the legend 
-        y = 1.1            # y-position of the legend 
+      layout( 
+        xaxis = list(title = "Date"), 
+        yaxis = list(title = "Avg. Readiness Score"), 
+        plot_bgcolor = '#FFFFFF', 
+        paper_bgcolor = '#FFFFFF', 
+        font = list(color = 'black'),  # Set text color to black for light theme 
+        showlegend = FALSE  # Hide the legend 
+      ) %>% 
+      # Add constant line at y = 80 
+      add_trace( 
+        y = rep(80, nrow(avg_readiness_data)),  # Create a constant y value of 80 for all x values 
+        mode = 'lines',  # Only show the constant line, no markers 
+        line = list(color = '#B9975B', width = 2)  # Customize the line appearance 
       ) 
-    ) 
-})
-
-
-
-# Create horizontal stacked bar chart for deceleration counts 
-output$decelBarChart <- renderPlotly({ 
-  # Filter the dataset based on user input (Date Range, Session, Position) 
-  filtered_data <- combined_data %>% 
-    filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
-             (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
-             (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
-    group_by(`Internal_Name`) %>%  # Group by Name 
-    summarise( 
-      Med_Intensity_Decel = mean(`Med. Intensity Decel Count`, na.rm = TRUE), 
-      High_Intensity_Decel = mean(`High Intensity Decel Counts`, na.rm = TRUE), 
-      Max_Intensity_Decel = mean(`Max Intensity Decel Counts`, na.rm = TRUE), 
-      .groups = 'drop'  # Ungroup after summarising 
+  })
+  
+  
+  
+  # Create high intensity acceleration, deceleration count chart, and top sprint speed bar chart 
+  output$highIntAccelChart <- renderPlotly({ 
+    # Filter data for High Intensity Acceleration, Deceleration Counts, and Top Sprint Speed 
+    high_int_data <- combined_data %>% 
+      filter((`Internal_Name` == input$nameFilter | input$nameFilter == "All") &   
+               (`Session` %in% input$sessionFilter | "All" %in% input$sessionFilter) & 
+               (`Position` == input$positionFilter | input$positionFilter == "All")) %>% 
+      filter(`Internal_Date` >= input$dateRange[1] & `Internal_Date` <= input$dateRange[2]) %>% 
+      select(`Internal_Date`, `High Int. Accel Count`, `High Intensity Decel Counts`, `Top Sprint Speed`)  
+    
+    # Calculate average counts by Date 
+    avg_high_int_data <- high_int_data %>% 
+      group_by(`Internal_Date`) %>% 
+      summarise( 
+        Average_High_Accel_Count = mean(`High Int. Accel Count`, na.rm = TRUE), 
+        Average_High_Decel_Count = mean(`High Intensity Decel Counts`, na.rm = TRUE), 
+        Average_Top_Sprint_Speed = mean(`Top Sprint Speed`, na.rm = TRUE),  # Average sprint speed 
+        .groups = 'drop' 
+      ) 
+    
+    # Line graph for Average High Intensity Acceleration and Deceleration Counts over Time 
+    plot_ly(data = avg_high_int_data, x = ~`Internal_Date`) %>% 
+      add_trace(y = ~Average_High_Accel_Count, type = 'scatter', mode = 'lines+markers',  
+                line = list(color = '#041E42'),  # Color for high intensity acceleration 
+                marker = list(color = '#041E42', size = 5), name = "# of High Intensity Accels.") %>% 
+      add_trace(y = ~Average_High_Decel_Count, type = 'scatter', mode = 'lines+markers',  
+                line = list(color = '#c8102E'),  # Color for high intensity deceleration 
+                marker = list(color = '#c8102E', size = 5), name = "# of High Intensity Decels.") %>% 
+      
+      # Bar chart for Top Sprint Speed 
+      add_trace(y = ~Average_Top_Sprint_Speed, type = 'bar',  
+                marker = list(color = '#B9975B'), name = "Top Sprint Speed (MPH)", opacity = 0.6) %>% 
+      
+      # Layout settings 
+      layout( 
+        xaxis = list(title = "Date"), 
+        yaxis = list(title = "Avg. Counts / Speed"), 
+        plot_bgcolor = '#FFFFFF', 
+        paper_bgcolor = '#FFFFFF', 
+        font = list(color = 'black'),  # Set text color to black 
+        legend = list( 
+          orientation = 'h',  # Horizontal legend 
+          x = 0.01,          # x-position of the legend 
+          y = 1.1            # y-position of the legend 
+        ) 
+      ) 
+  })
+  
+  
+  # Create horizontal stacked bar chart for acceleration counts 
+  output$accelBarChart <- renderPlotly({ 
+    # Filter the dataset based on user input (Date Range, Session, Position) 
+    filtered_data <- combined_data %>% 
+      filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
+               (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
+               (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
+      group_by(`Internal_Name`) %>%  # Group by Name 
+      summarise( 
+        Med_Intensity_Accel = mean(`Med. Intensity Accel Count`, na.rm = TRUE), 
+        High_Intensity_Accel = mean(`High Int. Accel Count`, na.rm = TRUE), 
+        Max_Intensity_Accel = mean(`Max Int. Accel Count`, na.rm = TRUE), 
+        .groups = 'drop'  # Ungroup after summarising 
+      ) %>% 
+      pivot_longer(cols = c(Med_Intensity_Accel, High_Intensity_Accel, Max_Intensity_Accel), 
+                   names_to = "Metric", values_to = "Count")  # Use pivot_longer 
+    
+    # Round Count values to the nearest whole number 
+    filtered_data$Count <- round(filtered_data$Count) 
+    
+    # Define the order of the metrics 
+    filtered_data$Metric <- factor(filtered_data$Metric,  
+                                   levels = c("Med_Intensity_Accel",  
+                                              "High_Intensity_Accel",  
+                                              "Max_Intensity_Accel"))   
+    
+    # Create the horizontal stacked bar chart 
+    plot_ly( 
+      data = filtered_data, 
+      x = ~Count, 
+      y = ~`Internal_Name`,   
+      color = ~Metric, 
+      colors = c("#69BE28", "#FFD700", "#FF4500"),   
+      type = 'bar', 
+      orientation = 'h',  # Horizontal bar chart 
+      text = ~Count,  # Display the rounded Count values 
+      textposition = 'middle',  # Position the text in the middle of the bars 
+      textfont = list(color = 'white')  # Set text color to white 
     ) %>% 
-    pivot_longer(cols = c(Med_Intensity_Decel, High_Intensity_Decel, Max_Intensity_Decel), 
-                 names_to = "Metric", values_to = "Count")  # Use pivot_longer 
-  
-  # Round Count values to the nearest whole number 
-  filtered_data$Count <- round(filtered_data$Count) 
-  
-  # Define the order of the metrics 
-  filtered_data$Metric <- factor(filtered_data$Metric,  
-                                 levels = c("Med_Intensity_Decel",  
-                                            "High_Intensity_Decel",  
-                                            "Max_Intensity_Decel"))   
-  
-  # Create the horizontal stacked bar chart 
-  plot_ly( 
-    data = filtered_data, 
-    x = ~Count, 
-    y = ~`Internal_Name`,   
-    color = ~Metric, 
-    colors = c("#69BE28", "#FFD700", "#FF4500"),   
-    type = 'bar', 
-    orientation = 'h',  # Horizontal bar chart 
-    text = ~Count,  # Display the rounded Count values 
-    textposition = 'middle',  # Position the text in the middle of the bars 
-    textfont = list(color = 'white')  # Set text color to white 
-  ) %>% 
-    layout( 
-      barmode = 'stack', 
-      xaxis = list(title = "Deceleration Count"),   
-      yaxis = list(title = ""),   # Update y-axis title 
-      plot_bgcolor = '#FFFFFF', 
-      paper_bgcolor = '#FFFFFF', 
-      legend = list( 
-        orientation = 'h',  # Horizontal legend 
-        x = 0.01,          # x-position of the legend 
-        y = 1.1            # y-position of the legend 
+      layout( 
+        barmode = 'stack', 
+        xaxis = list(title = "Acceleration Count"),   
+        yaxis = list(title = ""),  # Update y-axis title 
+        plot_bgcolor = '#FFFFFF', 
+        paper_bgcolor = '#FFFFFF', 
+        legend = list( 
+          orientation = 'h',  # Horizontal legend 
+          x = 0.01,          # x-position of the legend 
+          y = 1.1            # y-position of the legend 
+        ) 
       ) 
-    ) 
-})
-
-
-
-
-# Create horizontal stacked bar chart for distance metrics 
-output$distanceBarChart <- renderPlotly({ 
-  # Filter the dataset based on user input (Date Range, Session, Position) 
-  filtered_data <- combined_data %>% 
-    filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
-             (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
-             (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
-    group_by(`Internal_Name`) %>%  # Group by Name 
-    summarise( 
-      Low_Intensity_Distance = mean(`Low Intensity Distance`, na.rm = TRUE), 
-      Moderate_Intensity_Distance = mean(`Moderate Intensity Distance`, na.rm = TRUE), 
-      High_Intensity_Distance = mean(`High Intensity Distance`, na.rm = TRUE), 
-      Sprint_Distance = mean(`Sprint Distance`, na.rm = TRUE), 
-      .groups = 'drop'  # Ungroup after summarising 
+  })
+  
+  
+  
+  # Create horizontal stacked bar chart for deceleration counts 
+  output$decelBarChart <- renderPlotly({ 
+    # Filter the dataset based on user input (Date Range, Session, Position) 
+    filtered_data <- combined_data %>% 
+      filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
+               (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
+               (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
+      group_by(`Internal_Name`) %>%  # Group by Name 
+      summarise( 
+        Med_Intensity_Decel = mean(`Med. Intensity Decel Count`, na.rm = TRUE), 
+        High_Intensity_Decel = mean(`High Intensity Decel Counts`, na.rm = TRUE), 
+        Max_Intensity_Decel = mean(`Max Intensity Decel Counts`, na.rm = TRUE), 
+        .groups = 'drop'  # Ungroup after summarising 
+      ) %>% 
+      pivot_longer(cols = c(Med_Intensity_Decel, High_Intensity_Decel, Max_Intensity_Decel), 
+                   names_to = "Metric", values_to = "Count")   
+    
+    # Round Count values to the nearest whole number 
+    filtered_data$Count <- round(filtered_data$Count) 
+    
+    # Define the order of the metrics 
+    filtered_data$Metric <- factor(filtered_data$Metric,  
+                                   levels = c("Med_Intensity_Decel",  
+                                              "High_Intensity_Decel",  
+                                              "Max_Intensity_Decel"))   
+    
+    # Create the horizontal stacked bar chart 
+    plot_ly( 
+      data = filtered_data, 
+      x = ~Count, 
+      y = ~`Internal_Name`,   
+      color = ~Metric, 
+      colors = c("#69BE28", "#FFD700", "#FF4500"),   
+      type = 'bar', 
+      orientation = 'h',  # Horizontal bar chart 
+      text = ~Count,  # Display the rounded Count values 
+      textposition = 'middle',  # Position the text in the middle of the bars 
+      textfont = list(color = 'white')  # Set text color to white 
     ) %>% 
-    pivot_longer(cols = c(Low_Intensity_Distance, Moderate_Intensity_Distance, High_Intensity_Distance, Sprint_Distance), 
-                 names_to = "Metric", values_to = "Distance")  # Use pivot_longer 
-  
-  # Round Distance values to the nearest whole number 
-  filtered_data$Distance <- round(filtered_data$Distance) 
-  
-  # Define the order of the metrics 
-  filtered_data$Metric <- factor(filtered_data$Metric,  
-                                 levels = c("Low_Intensity_Distance",  
-                                            "Moderate_Intensity_Distance",  
-                                            "High_Intensity_Distance",  
-                                            "Sprint_Distance"))   
-  
-  # Create the horizontal stacked bar chart 
-  plot_ly( 
-    data = filtered_data, 
-    x = ~Distance, 
-    y = ~`Internal_Name`,   
-    color = ~Metric, 
-    colors = c("#7CB9E8", "#69BE28", "#FFD700", "#FF4500"),   
-    type = 'bar', 
-    orientation = 'h',  # Horizontal bar chart 
-    text = ~Distance,  # Display the rounded Distance values 
-    textposition = 'middle',  # Position the text in the middle of the bars 
-    textfont = list(color = 'white')  # Set text color to white 
-  ) %>% 
-    layout( 
-      barmode = 'stack', 
-      xaxis = list(title = "Distance (Yards)"),   
-      yaxis = list(title = ""),   # Update y-axis title 
-      plot_bgcolor = '#FFFFFF', 
-      paper_bgcolor = '#FFFFFF', 
-      legend = list( 
-        orientation = 'h',  # Horizontal legend 
-        x = 0.01,          # x-position of the legend 
-        y = 1.1            # y-position of the legend 
+      layout( 
+        barmode = 'stack', 
+        xaxis = list(title = "Deceleration Count"),   
+        yaxis = list(title = ""),   # Update y-axis title 
+        plot_bgcolor = '#FFFFFF', 
+        paper_bgcolor = '#FFFFFF', 
+        legend = list( 
+          orientation = 'h',  # Horizontal legend 
+          x = 0.01,          # x-position of the legend 
+          y = 1.1            # y-position of the legend 
+        ) 
       ) 
-    ) 
-})
-
+  })
+  
+  
+  
+  
+  # Create horizontal stacked bar chart for distance metrics 
+  output$distanceBarChart <- renderPlotly({ 
+    # Filter the dataset based on user input (Date Range, Session, Position) 
+    filtered_data <- combined_data %>% 
+      filter((`Session` %in% input$teamSessionFilter | "All" %in% input$teamSessionFilter) & 
+               (`Position` %in% input$teamPositionFilter | "All" %in% input$teamPositionFilter) & 
+               (`Internal_Date` >= input$teamDateRange[1] & `Internal_Date` <= input$teamDateRange[2])) %>% 
+      group_by(`Internal_Name`) %>%  # Group by Name 
+      summarise( 
+        Low_Intensity_Distance = mean(`Low Intensity Distance`, na.rm = TRUE), 
+        Moderate_Intensity_Distance = mean(`Moderate Intensity Distance`, na.rm = TRUE), 
+        High_Intensity_Distance = mean(`High Intensity Distance`, na.rm = TRUE), 
+        Sprint_Distance = mean(`Sprint Distance`, na.rm = TRUE), 
+        .groups = 'drop'  # Ungroup after summarising 
+      ) %>% 
+      pivot_longer(cols = c(Low_Intensity_Distance, Moderate_Intensity_Distance, High_Intensity_Distance, Sprint_Distance), 
+                   names_to = "Metric", values_to = "Distance")   
+    
+    # Round Distance values to the nearest whole number 
+    filtered_data$Distance <- round(filtered_data$Distance) 
+    
+    # Define the order of the metrics 
+    filtered_data$Metric <- factor(filtered_data$Metric,  
+                                   levels = c("Low_Intensity_Distance",  
+                                              "Moderate_Intensity_Distance",  
+                                              "High_Intensity_Distance",  
+                                              "Sprint_Distance"))   
+    
+    # Create the horizontal stacked bar chart 
+    plot_ly( 
+      data = filtered_data, 
+      x = ~Distance, 
+      y = ~`Internal_Name`,   
+      color = ~Metric, 
+      colors = c("#7CB9E8", "#69BE28", "#FFD700", "#FF4500"),   
+      type = 'bar', 
+      orientation = 'h',  # Horizontal bar chart 
+      text = ~Distance,  # Display the rounded Distance values 
+      textposition = 'middle',  # Position the text in the middle of the bars 
+      textfont = list(color = 'white')  # Set text color to white 
+    ) %>% 
+      layout( 
+        barmode = 'stack', 
+        xaxis = list(title = "Distance (Yards)"),   
+        yaxis = list(title = ""),   # Update y-axis title 
+        plot_bgcolor = '#FFFFFF', 
+        paper_bgcolor = '#FFFFFF', 
+        legend = list( 
+          orientation = 'h',  # Horizontal legend 
+          x = 0.01,          # x-position of the legend 
+          y = 1.1            # y-position of the legend 
+        ) 
+      ) 
+  })
+  
 }
 
 # Run the application 
