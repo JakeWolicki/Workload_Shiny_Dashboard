@@ -12,11 +12,11 @@ default_image_url <- "https://static.thenounproject.com/png/35224-200.png"
 
 # Connect to PostgreSQL database
 con <- dbConnect(RPostgres::Postgres(), 
-                 dbname = "postgres",
-                 host = "localhost",
-                 port = 5432,
-                 user = "postgres",
-                 password = "Test_123_$$")
+                 dbname = "dbname",
+                 host = "host",
+                 port = port,
+                 user = "user",
+                 password = "password")
 
 # Load and process data from the database
 combined_data <- dbGetQuery(con, 'SELECT * FROM "combined_data_2";')
