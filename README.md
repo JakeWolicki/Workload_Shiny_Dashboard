@@ -13,8 +13,9 @@ This dashboard is designed to equip coaches, strength and conditioning (S&C) sta
 ### Database Management
 To underpin the NHL Workload R Shiny Dashboard, a relational database was developed using PostgreSQL, facilitated through DBeaver. This approach encompasses:
 - **Database Creation**: A structured relational database was established to efficiently store and manage the diverse datasets employed in the dashboard.
-- **DDatabase Connectivity**: The dashboard seamlessly interfaces with the PostgreSQL database, enabling real-time data retrieval for comprehensive analysis.
-- **DData Querying**: SQL queries were designed to extract relevant datasets, ensuring rapid access and an optimal user experience.
+- **Database Connectivity**: The dashboard seamlessly interfaces with the PostgreSQL database, enabling real-time data retrieval for comprehensive analysis.
+- **Data Querying**: SQL queries were designed to extract relevant datasets, ensuring rapid access and an optimal user experience.
+
 This database integration enhances data management capabilities and supports scalability as additional data sources are incorporated in future developments.
 
 ### Goals
