@@ -4,7 +4,7 @@
 This dashboard is designed to equip coaches, strength and conditioning (S&C) staff, trainers, and sports scientists with key insights into player readiness and workload. The goal is to foster a deeper understanding of the factors influencing player stress and performance, enabling more effective workload programming to balance on-ice demands. Ultimately, the aim is to reduce injury risk, establish a guided return-to-play (RTP) protocol, and understand the effects of internal and external measures on athlete performance.
 
 ### Data Source and Technology
-- **Data Source**: Kaggle dataset (link or description of the dataset used)
+- **Data Source**: Kaggle dataset 
 - **Technology Stack**:  
   - R for analysis  
   - Shiny for interactive dashboard development  
