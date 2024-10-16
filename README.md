@@ -8,7 +8,7 @@ This dashboard is designed to equip coaches, strength and conditioning (S&C) sta
 - **Technology Stack**:  
   - R for analysis  
   - Shiny for interactive dashboard development  
-  - Hosted on [shinyapps.io](https://www.shinyapps.io) for easy access
+  - Hosted on shinyapps.io with this link [NHL Workload Dashboard]([https://www.shinyapps.io](https://jwolicki.shinyapps.io/NHL_Workload/)) for easy access
 
 ### Goals
 - **Understanding Player Stressors**: Gain insights into the stressors affecting players and their contributing factors.
