@@ -23,11 +23,11 @@ This dashboard is designed to equip coaches, strength and conditioning (S&C) sta
 - Sports Science Teams
 
 ### Features
-#### Player Workload
+#### Skater Readiness
 - **Tracking Trends**: Monitor player readiness trends to help identify recovery strategies and inform timely adjustments to training programs.
 - **Readiness and Strain**: Analyze how readiness correlates with high-strain activities (e.g., high-intensity accelerations and decelerations) and how these translate to on-ice performance.
 
-#### Team Workload
+#### Skater Workload
 - **Balancing Workload**: Ensure balanced workload distribution across the team and by position, preventing overtraining or undertraining.
 - **Comparative Analysis**: Compare players by position, date, and session type to identify who has the most or least workload.
 - **Informed Programming**: Use data to customize training programs, such as reducing eccentric work for players with high deceleration rates to manage stress and prevent injury.
