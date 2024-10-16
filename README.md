@@ -32,6 +32,15 @@ This dashboard is designed to equip coaches, strength and conditioning (S&C) sta
 - **Comparative Analysis**: Compare players by position, date, and session type to identify who has the most or least workload.
 - **Informed Programming**: Use data to customize training programs, such as reducing eccentric work for players with high deceleration rates to manage stress and prevent injury.
 
+#### Skater Distance Z Scores
+- **Analyzing Intensity Levels: This feature breaks down the distance skaters travel across four intensity levels: low, moderate, high, and sprint. To further analyze performance, the skaters' Z-scores are calculated, which show how far each player deviates from the average distance covered by all skaters, for each intensity level.  This is summarized with a table of skaters' Z-scores for each intensity level, followed by four bar charts for easier comparison of Z-scores across low, moderate, high, and sprint intensities.
+
+#### Goalie Readiness
+- **Tracking Trends: Similar to the skater readiness section, this feature focuses on goalies. It monitors goalie readiness trends, helping identify recovery strategies and making timely adjustments to their training programs. 
+
+#### Goalie Workload
+- **Defensive Zone & Muscle Activation: This section presents a combined bar and line chart. The bar chart shows the time the puck spends in the defensive zone, while the line graphs display the EMG (electromyography) activation for both the right and left quadriceps. 
+
 ### Future Vision
 - **Injury Correlation**: Pair workload metrics with injury data to identify potential correlations and contributing factors.
 - **Injury Prediction**: Work towards identifying methods to mitigate injury risk, even if it results in a marginal reduction.
