@@ -30,7 +30,7 @@ This database integration enhances data management capabilities and supports sca
 - Trainers
 - Sports Science Teams
 
-### Features
+### Dashboard Tabs
 #### Skater Readiness
 - **Tracking Trends**: Monitor player readiness trends to help identify recovery strategies and inform timely adjustments to training programs.
 - **Readiness and Strain**: Analyze how readiness correlates with high-strain activities (e.g., high-intensity accelerations and decelerations) and how these translate to on-ice performance.
